@@ -1,0 +1,18 @@
+GET followers/ids
+GET friends/ids
+15 requests / 15 min = 1 req/min
+5,000 users / request = 5,000 users/min = 300,000/hr = 600,000users/day
+--------
+GET users/lookup
+900 requests/15 min (user auth) = 60 req/min
+100 users / req = 6,000 users/min = 36000/hr *20 = 700,000users/day
+-------
+GET friendships/show => check if 2 users following or followed by each other
+180 req/15min(userauth) = 12req/min
+1 day = 20 hr = 1,200 min => 14,400 req/day
+=12check/min
+If 3 users in the networks, we need 2! = 3 requests to check relationship between each usere for whole networks.
+
+-----Get retweet relationship
+GET statuses/user_timeline = list of tweets on specified user
+GET statuses/retweeters/ids = get users who retweet this tweet id

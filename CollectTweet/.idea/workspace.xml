@@ -17,8 +17,8 @@
       <file leaf-file-name="TweetScraper.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TweetScraper.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="72" column="13" lean-forward="true" selection-start-line="72" selection-start-column="13" selection-end-line="72" selection-end-column="13" />
+            <state relative-caret-position="238">
+              <caret line="14" column="25" lean-forward="true" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -29,8 +29,8 @@
       <file leaf-file-name="scrap_coinmarketcap.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scrap_coinmarketcap.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="16" column="34" selection-start-line="16" selection-start-column="34" selection-end-line="16" selection-end-column="34" />
+            <state relative-caret-position="85">
+              <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -53,6 +53,7 @@
       <find>or</find>
       <find>zcash</find>
       <find>qtum</find>
+      <find>logging</find>
     </findStrings>
     <replaceStrings>
       <replace>OR</replace>
@@ -67,17 +68,17 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="538" />
-    <option name="y" value="141" />
-    <option name="width" value="1382" />
-    <option name="height" value="744" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="732" />
+    <option name="width" value="641" />
+    <option name="height" value="735" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -89,7 +90,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -159,16 +159,16 @@
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23065476" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.20163691" />
       <window_info anchor="bottom" id="TODO" order="9" weight="0.3294509" />
-      <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.5014881" side_tool="true" weight="0.40327868" />
-      <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" x="11" y="271" width="1344" height="185" id="Python Console" order="10" sideWeight="0.4985119" visible="true" weight="0.40327868" />
+      <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.16145833" side_tool="true" weight="0.30163935" />
       <window_info anchor="bottom" id="Run" order="5" weight="0.2147541" />
+      <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" x="11" y="271" width="1344" height="185" id="Python Console" order="10" sideWeight="0.8385417" visible="true" weight="0.2672131" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="2" weight="0.32786885" />
-      <window_info id="Favorites" order="1" side_tool="true" weight="0.3296131" />
       <window_info anchor="bottom" id="Debug" order="6" weight="0.39767054" />
+      <window_info id="Favorites" order="1" side_tool="true" weight="0.3296131" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -179,22 +179,22 @@
     </layout>
     <layout-to-restore>
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Run" order="5" weight="0.21630615" />
-      <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
       <window_info content_ui="combo" id="Project" order="0" weight="0.25" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="TODO" order="9" weight="0.3294509" />
-      <window_info anchor="bottom" id="Find" order="4" />
-      <window_info active="true" anchor="bottom" x="11" y="271" width="1344" height="185" id="Python Console" order="10" sideWeight="0.49925596" visible="true" weight="0.3295082" />
+      <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="5" weight="0.21630615" />
+      <window_info anchor="bottom" id="Message" order="3" />
       <window_info anchor="bottom" id="Debug" order="6" weight="0.39767054" />
       <window_info anchor="bottom" id="Terminal" order="2" weight="0.3294509" />
       <window_info anchor="bottom" id="Event Log" order="0" sideWeight="0.50074404" side_tool="true" weight="0.24958402" />
-      <window_info anchor="bottom" id="Inspection" order="8" weight="0.4" />
-      <window_info anchor="bottom" id="Version Control" order="1" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Message" order="3" />
+      <window_info anchor="bottom" id="Cvs" order="7" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" weight="0.3296131" />
+      <window_info anchor="bottom" id="Find" order="4" />
+      <window_info active="true" anchor="bottom" x="11" y="271" width="1344" height="185" id="Python Console" order="10" sideWeight="0.49925596" visible="true" weight="0.3295082" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -202,20 +202,71 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="5" />
+      <option name="time" value="6" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/poc_tweetapi.py">
+    <entry file="file://$PROJECT_DIR$/TweetScraper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1190">
-          <caret line="70" column="38" selection-start-line="70" selection-start-column="38" selection-end-line="70" selection-end-column="38" />
+        <state relative-caret-position="374">
+          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/scrap_coinmarketcap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="11" lean-forward="true" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TweetScraper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="374">
+          <caret line="22" column="11" selection-start-line="22" selection-start-column="11" selection-end-line="22" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scrap_coinmarketcap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="8" selection-end-line="18" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TweetScraper.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" selection-end-line="201" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/scrap_coinmarketcap.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="16" column="34" selection-start-line="16" selection-start-column="34" selection-end-line="16" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/poc_tweetapi.py" />
     <entry file="file://$USER_HOME$/Anaconda3/Lib/site-packages/tweepy/api.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-32">
@@ -230,16 +281,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/poc_tweetapi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="70" column="38" selection-start-line="70" selection-start-column="38" selection-end-line="70" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/poc_tweetapi.py" />
     <entry file="file://$USER_HOME$/.PyCharmCE2018.1/system/python_stubs/-1027916076/builtins.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="127">
@@ -257,20 +299,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="9" lean-forward="true" selection-start-column="9" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/top24coins.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-127">
-          <caret column="2" selection-start-column="2" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/data.json" />
+    <entry file="file://$PROJECT_DIR$/top24coins.json" />
     <entry file="file://$PROJECT_DIR$/TweetScraper.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="88">
@@ -322,24 +352,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="9" lean-forward="true" selection-start-column="9" selection-end-column="9" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/top24coins.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="91">
-          <caret line="17835" column="54" selection-start-line="17835" selection-start-column="54" selection-end-line="17835" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/data.json" />
+    <entry file="file://$PROJECT_DIR$/top24coins.json" />
+    <entry file="file://$PROJECT_DIR$/top1_10_2018-05-19.json" />
+    <entry file="file://$PROJECT_DIR$/verge_steem_2018-05-19.json" />
     <entry file="file://$PROJECT_DIR$/scrap_coinmarketcap.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="16" column="34" selection-start-line="16" selection-start-column="34" selection-end-line="16" selection-end-column="34" />
+        <state relative-caret-position="85">
+          <caret line="5" column="11" selection-start-line="5" selection-start-column="11" selection-end-line="5" selection-end-column="11" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
@@ -348,8 +368,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TweetScraper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="72" column="13" lean-forward="true" selection-start-line="72" selection-start-column="13" selection-end-line="72" selection-end-column="13" />
+        <state relative-caret-position="238">
+          <caret line="14" column="25" lean-forward="true" selection-start-line="14" selection-start-column="25" selection-end-line="14" selection-end-column="25" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>

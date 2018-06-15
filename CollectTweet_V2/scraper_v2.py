@@ -74,16 +74,16 @@ logging.basicConfig(filename='history.log',level=logging.INFO, format='%(asctime
 
 ### Setup authentication
 # ## App1
-__CONSUMER_KEY = 'l9BvOKjP2Xj48I5wlc7Uh8sVN'
-__CONSUMER_SECRET = 'HMKOvmuCaReDIzc0GlzfjQGKFrdCJ9jHlRJd8AAp0e7PHfwl6H'
-__ACCESS_TOKEN = '982717247109189632-cdUZCv2mzMCDiPiHkdRDpUQXdRnFIvB'
-__ACCESS_TOKEN_SECRET = 'AaayN6WOC3rPcYIoBg1Cc5uEPeUbcrw2jFHhhZVlHzjGC'
+# __CONSUMER_KEY = 'l9BvOKjP2Xj48I5wlc7Uh8sVN'
+# __CONSUMER_SECRET = 'HMKOvmuCaReDIzc0GlzfjQGKFrdCJ9jHlRJd8AAp0e7PHfwl6H'
+# __ACCESS_TOKEN = '982717247109189632-cdUZCv2mzMCDiPiHkdRDpUQXdRnFIvB'
+# __ACCESS_TOKEN_SECRET = 'AaayN6WOC3rPcYIoBg1Cc5uEPeUbcrw2jFHhhZVlHzjGC'
 
-# ### App2
-# __CONSUMER_KEY = 'L7IX0KwYgQUGeC1TqnxULue1v'
-# __CONSUMER_SECRET = 'gRiqmdED0KFVjg6v2x9giQmctFLdAiFwEioCECuVCTJafp8byB'
-# __ACCESS_TOKEN = '982717247109189632-QRXdgrmZdhIy00do6D5o0wpdUMVKvJU'
-# __ACCESS_TOKEN_SECRET = 'szb7jQaVBe8JCf9iM23e3GBd7OgbuLRDxhTM6nU4L3QAp'
+### App2
+__CONSUMER_KEY = 'L7IX0KwYgQUGeC1TqnxULue1v'
+__CONSUMER_SECRET = 'gRiqmdED0KFVjg6v2x9giQmctFLdAiFwEioCECuVCTJafp8byB'
+__ACCESS_TOKEN = '982717247109189632-QRXdgrmZdhIy00do6D5o0wpdUMVKvJU'
+__ACCESS_TOKEN_SECRET = 'szb7jQaVBe8JCf9iM23e3GBd7OgbuLRDxhTM6nU4L3QAp'
 
 # ## App3
 # __CONSUMER_KEY = 'w3TysRbh9H6oKp5T8qVNeSEdl'
@@ -93,25 +93,25 @@ __ACCESS_TOKEN_SECRET = 'AaayN6WOC3rPcYIoBg1Cc5uEPeUbcrw2jFHhhZVlHzjGC'
 ####
 
 ### Collecting date range
-collectingDataSince = "2018-06-08"
-collectingDataUntil = "2018-06-12"
+collectingDataSince = "2018-06-12"
+collectingDataUntil = "2018-06-13"
 
 ### intial json file name
-filename = 'top2-5_'+collectingDataSince+'_to_'+collectingDataUntil+'.json'
+filename = 'top1_'+collectingDataSince+'_to_'+collectingDataUntil+'.json'
 
 ### save every N page
 bulkSize = 50
 
 ### Define query
 coinTags = {}
-### 1
-# coinTags['bitcoin'] = "#bitcoin OR #btc"
+# ### 1
+coinTags['bitcoin'] = "#bitcoin OR #btc"
 
-# 2-5 ###
-coinTags['ethereum'] = "#ethereum OR #eth OR #ether"
-coinTags['ripple'] = "#ripple OR #xrp"
-coinTags['bitcoincash'] = "#bitcoincash OR #bch"
-coinTags['eosio'] = "#eosio OR #eos"
+## 2-5 ###
+# coinTags['ethereum'] = "#ethereum OR #eth OR #ether"
+# coinTags['ripple'] = "#ripple OR #xrp"
+# coinTags['bitcoincash'] = "#bitcoincash OR #bch"
+# coinTags['eosio'] = "#eosio OR #eos"
 
 # ## 6-30 ###
 # coinTags['litecoin'] = "#litecoin OR #ltc"

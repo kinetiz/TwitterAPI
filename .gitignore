@@ -14,3 +14,5 @@ Hash2Hash/genfile_0512-0611/hashtags_count.pkl
 Hash2Hash/genfile_0512-0611/imp_hashtag_list.pkl
 Hash2Hash/genfile_0512-0611/stats.txt
 Hash2Hash/genfile_0512-0611/tags.xlsx
+*.pkl
+*.xml

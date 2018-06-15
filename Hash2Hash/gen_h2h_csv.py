@@ -1,4 +1,3 @@
-######
 # Description: Generate file format: |h1,h2,count| for visualisation in Gelphi
 # Input: json file
 # Output: csv file |h1,h2,count|
@@ -57,56 +56,60 @@ data = {
 #######################################
 min_count_threshold = 0 # will be set below
 
+start = datetime.datetime.now()
+print(str(start) + ' - Cleaning..')
 #######################################
 # 1) Clean and prepare set of hashtags
 #######################################
-start = datetime.datetime.now()
-print(str(start) + ' - Cleaning..')
 
-clean_tweet_hashtag = []
-imp_hashtag_list = []
-hashtag_count = {}
+# clean_tweet_hashtag = []
+# imp_hashtag_list = []
+# hashtag_count = {}
+#
+# # # Change hashtag to lowercase before running cypher to increase speed
+# # for tidx, t in enumerate(data['tweets']):
+# #     for hidx, h in enumerate(t['hashtags']):
+######
+# #         data['tweets'][tidx]['hashtags'][hidx] = h.lower()
+#
+# # Prepare cleaned hashtag
+# #Get json file path
+# walk_dir = "G:\\work\\TwitterAPI\\data\\used_data"
+# file_list = []
+# for root, subdirs, files in os.walk(walk_dir):
+#     path, book_name = os.path.split(root)
+#     all_text = ""
+#     for filename in files:
+#         # os.path.join => join str with //
+#         file_path = os.path.join(root, filename)
+#         file_list.append(file_path)
+#
+#
+# for file_name in file_list:
+#     print('Loading: ' + file_name + '..')
+#     with open(file_name) as f:
+#         data = json.load(f)
+#
+#     for twt in data['tweets']:
+#         tag_list = []
+#
+#         # change all tags to lower case
+#         [tag_list.append(h.lower()) for h in twt['hashtags']]
+#
+#         # distinct the list to remove duplicate hashtag
+#         tag_list = list(set(tag_list))
+#
+#         # Prepare cleaned hashtag
+#         clean_tweet_hashtag.append(tag_list)
+#
+#         for tag in tag_list:
+#             # get hashtag in dict and update count. If not exists just return 0 and plus 1
+#             hashtag_count[tag] = hashtag_count.get(tag, 0) + 1
+# # save_object(hashtag_count,'hashtags_count.pkl')
+# # save_object(clean_tweet_hashtag,'clean_tweet_hashtag.pkl')
 
-# # Change hashtag to lowercase before running cypher to increase speed
-# for tidx, t in enumerate(data['tweets']):
-#     for hidx, h in enumerate(t['hashtags']):
-#         data['tweets'][tidx]['hashtags'][hidx] = h.lower()
-
-# Prepare cleaned hashtag
-#Get json file path
-walk_dir = "G:\\work\\TwitterAPI\\data\\used_data"
-file_list = []
-for root, subdirs, files in os.walk(walk_dir):
-    path, book_name = os.path.split(root)
-    all_text = ""
-    for filename in files:
-        # os.path.join => join str with //
-        file_path = os.path.join(root, filename)
-        file_list.append(file_path)
-
-
-for file_name in file_list:
-    print('Loading: ' + file_name + '..')
-    with open(file_name) as f:
-        data = json.load(f)
-
-    for twt in data['tweets']:
-        tag_list = []
-
-        # change all tags to lower case
-        [tag_list.append(h.lower()) for h in twt['hashtags']]
-
-        # distinct the list to remove duplicate hashtag
-        tag_list = list(set(tag_list))
-
-        # Prepare cleaned hashtag
-        clean_tweet_hashtag.append(tag_list)
-
-        for tag in tag_list:
-            # get hashtag in dict and update count. If not exists just return 0 and plus 1
-            hashtag_count[tag] = hashtag_count.get(tag, 0) + 1
-# save_object(hashtag_count,'hashtags_count.pkl')
-# save_object(clean_tweet_hashtag,'clean_tweet_hashtag.pkl')
+hashtag_count = load_object('hashtags_count.pkl')
+clean_tweet_hashtag = load_object('clean_tweet_hashtag.pkl')
 # get count of each searched hashtags
 coins = ['bitcoin','btc','ethereum','eth','ether','ripple','xrp','bitcoincash','bch','eosio','eos','litecoin','ltc','cardano','ada','stellar','xlm','iota','miota','tron','trx','neo','monero','xmr','dash','nem','xem','tether','usdt','vechain','ven','ethereumclassic','etc','bytecoin','bcn','binancecoin','bnb','qtum','zcash','zec','icx','omisego','lisk','lsk','zilliqa','zil','bitcoingold','btg','aeternity','ae','ontology','ont','verge','xvg','steem']
 coin_hash_count = {}
@@ -118,16 +121,15 @@ coin_hash_count[len(coin_hash_count)-1]
 min_count_threshold = coin_hash_count[len(coin_hash_count)-1][1]*0.1
 
 # ## Analysing stats of hashtag
-# hashtag_count = load_object('hashtags_count.pkl')
-# clean_tweet_hashtag = load_object('clean_tweet_hashtag.pkl')
-# count = list(hashtag_count.values())
-# print("Total:%f" % (len(count)))
-# print("min:%f" % (np.min(count)))
-# print("max:%f" % (np.max(count)))
-# print("mean:%f" % (np.mean(count)))
-# print("median:%f" % (np.median(count)))
-# print("mode:%f" % (stats.mode(count)[0][0]))
-# print("std:%f" % (np.std(count)))
+
+count = list(hashtag_count.values())
+print("Total:%f" % (len(count)))
+print("min:%f" % (np.min(count)))
+print("max:%f" % (np.max(count)))
+print("mean:%f" % (np.mean(count)))
+print("median:%f" % (np.median(count)))
+print("mode:%f" % (stats.mode(count)[0][0]))
+print("std:%f" % (np.std(count)))
 #
 # # plot histogram
 # hist_info = plt.hist(np.log(count), bins=50)
@@ -140,6 +142,7 @@ min_count_threshold = coin_hash_count[len(coin_hash_count)-1][1]*0.1
 # Prepare important hashtag by filter out rare hashtag (from threshold)
 imp_hashtag_list = list(filter(lambda x: hashtag_count[x] > min_count_threshold, hashtag_count))
 
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + ' - Removing unimportant hashtags..')
 # Remove hashtag which are not in the important list
 for hset in clean_tweet_hashtag:
     [hset.remove(h) for h in hset if h not in imp_hashtag_list]
@@ -198,3 +201,52 @@ with open('co-hashtag.csv', 'w', newline='', encoding='utf-8') as csv_file:
         for co_tag, co_count in main_dict.items():
             writer.writerow([main_tag, co_tag, co_count])
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + 'Done Save file spent: ' + str(datetime.datetime.now() - start))
+
+# save_object(clean_tweet_hashtag,'af_removed_clean_tweet_hashtag.pkl')
+# save_object(imp_hashtag_list,'imp_hashtag_list.pkl')
+clean_tweet_hashtag = load_object('genfile_0512-0611//af_removed_clean_tweet_hashtag.pkl')
+
+
+
+## read co-tags for filtering only coins
+import csv
+full_cotag_filename = 'genfile_0512-0611//co-hashtag_gt-139-count'
+
+# load list of all hashtags
+imp_hashtag_list = load_object('genfile_0512-0611//imp_hashtag_list.pkl')
+
+# load list output files
+filename = full_cotag_filename + ".csv"
+with open(filename, encoding='utf-8') as f:
+    data = [tuple(line) for line in csv.reader(f)]
+
+## filter h1 = coins
+coinsTuple = [d for d in data if
+              d[0] in ['bitcoin', 'btc', 'ethereum', 'eth', 'ether', 'ripple', 'xrp', 'bitcoincash', 'bch', 'eosio',
+                       'eos', 'litecoin', 'ltc', 'cardano', 'ada', 'stellar', 'xlm', 'iota', 'miota', 'tron', 'trx',
+                       'neo', 'monero', 'xmr', 'dash', 'nem', 'xem', 'tether', 'usdt', 'vechain', 'ven',
+                       'ethereumclassic', 'etc', 'bytecoin', 'bcn', 'binancecoin', 'bnb', 'qtum', 'zcash', 'zec', 'icx',
+                       'omisego', 'lisk', 'lsk', 'zilliqa', 'zil', 'bitcoingold', 'btg', 'aeternity', 'ae', 'ontology',
+                       'ont', 'verge', 'xvg', 'steem']]
+
+# prepare node file
+with open('genfile_0512-0611//nodes.csv','w',newline='',encoding='utf-8') as f:
+    w = csv.writer(f)
+    w.writerow(['id','label'])
+    for id, name in enumerate(imp_hashtag_list):
+        w.writerow([id, name])
+
+## prepare edge file
+with open('genfile_0512-0611//edges.csv','w',newline='',encoding='utf-8') as f:
+    w = csv.writer(f)
+    w.writerow(['Source','Target','Weight'])
+    for row in coinsTuple:
+        if(row[0] in imp_hashtag_list and row[1] in imp_hashtag_list):
+            w.writerow([imp_hashtag_list.index(row[0]),imp_hashtag_list.index(row[1]), row[2]])
+
+# ## save to new files
+# with open(new_filename, 'w', newline='', encoding='utf-8') as f:
+#     w = csv.writer(f)
+#     w.writerow(["hashtag1", "hashtag2", "count"])
+#     for row in coinsTuple:
+#         w.writerow(list(row))

@@ -8,3 +8,9 @@
 *.csv
 *.xml
 *.xml
+Hash2Hash/genfile_0512-0611/af_removed_clean_tweet_hashtag.pkl
+Hash2Hash/genfile_0512-0611/clean_tweet_hashtag.pkl
+Hash2Hash/genfile_0512-0611/hashtags_count.pkl
+Hash2Hash/genfile_0512-0611/imp_hashtag_list.pkl
+Hash2Hash/genfile_0512-0611/stats.txt
+Hash2Hash/genfile_0512-0611/tags.xlsx

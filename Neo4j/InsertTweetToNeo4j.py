@@ -18,6 +18,16 @@ logging.basicConfig(filename='insert_history.log',level=logging.INFO, format='%(
 uri = "bolt://localhost:7687"
 driver = GraphDatabase.driver(uri, auth=("neo4j", "11111"))
 
+### test code ##################
+q_test = """Return apoc.date.format(timestamp()+(1000*60*60*1)) as now"""
+with driver.session() as session:
+    tx = session.begin_transaction()
+    ret = tx.run(q_test).single().value()
+    tx.commit()
+    print(ret)
+#################################
+
+
 ##Get json file path
 # walk_dir = "G:\\work\\TwitterAPI\\data\\used_data\\top1"
 # file_list = []
@@ -29,34 +39,40 @@ driver = GraphDatabase.driver(uri, auth=("neo4j", "11111"))
 #             file_path = os.path.join(root, filename)
 #             file_list.append(file_path)
 
-file_list = [   "G:\\work\\TwitterAPI\\data\\used_data\\top2-5\\top2-5_2018-05-17_to_2018-05-21.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top2-5\\top2-5_2018-05-21_to_2018-05-24.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top2-5\\top2-5_2018-05-27_to_2018-06-01.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top1\\top1_2018-05-20_to_2018-05-21.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top1\\top1_2018-05-21_to_2018-05-22.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top1\\top1_2018-05-22_to_2018-05-24.json",
-                "G:\\work\\TwitterAPI\\data\\used_data\\top6-30\\top6-30_2018-05-17_to_2018-05-24.json"
-
+file_list = [
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top2-5\\top2-5_2018-06-08_to_2018-06-12.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-04_to_2018-06-06.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-06_to_2018-06-08.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-08_to_2018-06-12.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-12_to_2018-06-14.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-08_to_2018-06-09.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-09_to_2018-06-10.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-10_to_2018-06-11.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-11_to_2018-06-12.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-12_to_2018-06-13.json",
              ]
+
+chunkSize = 10000
+
 data = []
 # Loop insert data to Neo4j from each json file
 for file_name in file_list:
     print('Loading: ' + file_name + '..')
     with open(file_name) as f:
         data = json.load(f)
+
     # Change hashtag to lowercase before running cypher to increase speed
     for tidx, t in enumerate(data['tweets']):
         for hidx, h in enumerate(t['hashtags']):
             data['tweets'][tidx]['hashtags'][hidx] = h.lower()
 
-    chunkSize = 10000
     chunkNum = math.ceil(len(data['tweets'])/chunkSize)
 
     for i in range(0,chunkNum):
         start = (i*chunkSize)
         chunk = {'tweets': data['tweets'][start:start+chunkSize]}
 
-        ### Prepare query
+        ## Prepare query
         # Insert Tweet
         q_insert_tweet = """WITH {json} AS document
                         UNWIND document.tweets AS tweets
@@ -67,7 +83,7 @@ for file_name in file_list:
                                 t.created_at = tweets.created_at,
                                 t.country = tweets.country,
                                 t.link_count = tweets.link_count
-
+                                t.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
                         RETURN count(t)
                         """
         #  user
@@ -79,6 +95,7 @@ for file_name in file_list:
                                 u.screen_name = tweets.screen_name,
                                 u.follower_count = tweets.friends_count,
                                 u.following_count = tweets.followers_count
+                                u.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
 
                         RETURN count(u)
                         """
@@ -90,6 +107,7 @@ for file_name in file_list:
                                 MERGE (h:Hashtag {tag: hashtag})
                                     ON CREATE SET
                                         h.tag = hashtag
+                                        h.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
                                 RETURN count(h)
                                 """
         #  link
@@ -105,6 +123,7 @@ for file_name in file_list:
                                 MERGE (u)-[rp:post]->(t)
                                 RETURN count(rh)+count(rp)
                                 """
+
         ### Execute queries
         with driver.session() as session:
             ### Insert Tweets
@@ -145,13 +164,13 @@ for file_name in file_list:
 
         # Add Hash-to-Hash relationship
 
-        # ## add hash-hash
+        ## add hash-hash
         # print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + ' - inserting hash-hash: ' + file_name + '..')
-        # logging.info('Start inserting hash-hash: ' + file_name + '..')
+        # logging.info("Chunk"+str(i)+ ": " + 'Start inserting hash-hash: ' + file_name + '..')
         # with driver.session() as session:
         #     # Open transaction
         #     tx = session.begin_transaction()
-        #     for t in data['tweets']:
+        #     for t in chunk['tweets']:
         #         hashtag = t['hashtags']
         #         hashLen = len(hashtag)
         #         # Loop matching hashtag but not include previous eg. 3 tags -> (1,2),(1,3),(2,3) -> not include 2,1 /2,2 / 3,2
@@ -165,8 +184,9 @@ for file_name in file_list:
         #                         RETURN count(r)"""
         #                 ret = tx.run(q, tag1=hashtag[i], tag2=hashtag[j]).single().value()
         #     tx.commit()
-        # print(str(ret) + " Hash-hash links added..")
-        # logging.info(str(ret) + " Hash-hash links added..")
+        # print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+        # print("Chunk"+str(i)+ ": " + str(ret) + " Hash-hash links added..")
+        # logging.info("Chunk"+str(i)+ ": " + str(ret) + " Hash-hash links added..")
 
         # Add User-to-User Reply and Retweet & Update Tweet.Retweet_count and Reply_count
         # ...

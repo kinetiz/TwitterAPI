@@ -40,16 +40,9 @@ with driver.session() as session:
 #             file_list.append(file_path)
 
 file_list = [
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top2-5\\top2-5_2018-06-08_to_2018-06-12.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-04_to_2018-06-06.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-06_to_2018-06-08.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-08_to_2018-06-12.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-12_to_2018-06-14.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-08_to_2018-06-09.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-09_to_2018-06-10.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-10_to_2018-06-11.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-11_to_2018-06-12.json",
-                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-12_to_2018-06-13.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top2-5\\top2-5_2018-06-12_to_2018-06-16.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top6-30\\top6-30_2018-06-14_to_2018-06-16.json",
+                "G:\\work\\TwitterAPI\\data\\cleaned_data\\top1\\top1_2018-06-13_to_2018-06-16.json",
              ]
 
 chunkSize = 10000
@@ -82,7 +75,7 @@ for file_name in file_list:
                                 t.text = tweets.tweet,
                                 t.created_at = tweets.created_at,
                                 t.country = tweets.country,
-                                t.link_count = tweets.link_count
+                                t.link_count = tweets.link_count,
                                 t.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
                         RETURN count(t)
                         """
@@ -94,7 +87,7 @@ for file_name in file_list:
                                 u.id = tweets.uid,
                                 u.screen_name = tweets.screen_name,
                                 u.follower_count = tweets.friends_count,
-                                u.following_count = tweets.followers_count
+                                u.following_count = tweets.followers_count,
                                 u.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
 
                         RETURN count(u)
@@ -106,7 +99,7 @@ for file_name in file_list:
                                 //Hashtag
                                 MERGE (h:Hashtag {tag: hashtag})
                                     ON CREATE SET
-                                        h.tag = hashtag
+                                        h.tag = hashtag,
                                         h.last_update = apoc.date.format(timestamp()+(1000*60*60*1))
                                 RETURN count(h)
                                 """

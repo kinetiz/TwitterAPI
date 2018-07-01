@@ -89,53 +89,54 @@ def save_object(obj, filename):
     with open(filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
-# # ##################################################
-# # # Gen user post from all tweet data
-# # ##################################################
-# # walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data"
-# # file_list = []
-# # for root, subdirs, files in os.walk(walk_dir):
-# #         path, book_name = os.path.split(root)
-# #         all_text = ""
-# #         for filename in files:
-# #             # os.path.join => join str with //
-# #             file_path = os.path.join(root, filename)
-# #             file_list.append(file_path)
-# #
-# # # test
-# # #file_list = ["G:\\work\\TwitterAPI\\data\\test\\test.json"]
-# # ###
-# # # count post from each user
-# # user_postcount = {}
-# # for filename in file_list:
-# #     print("Reading: %s.."%(filename))
-# #     with open(filename) as f:
-# #         data =json.load(f)
-# #         for twt in data['tweets']:
-# #             # Exclude Retweet
-# #             if twt['retweet_from_uid'] is None:
-# #                 user_postcount[twt['uid']] = user_postcount.get(twt['uid'], 0) + 1
-# #
-# # # sort desc
-# # logging.info("Sorting user_postcount .."); print("Sorting user_postcount ..")
-# # user_postcount = sorted(user_postcount.items(), key=operator.itemgetter(1), reverse=True)
-# #
-# # #save as obj
-# # logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as user_postcount_no_retweet.pkl ..")
-# # save_object(user_postcount, 'user_postcount_no_retweet.pkl')
-# #
-# # #save as json
-# # logging.info("Saving as user_postcount_no_retweet.json .."); print("Saving as user_postcount_no_retweet.json ..")
-# # with open('user_postcount_no_retweet.json', 'w') as f:
-# #     json.dump(user_postcount, f)
-# # logging.info("All jobs done!"); print("All jobs done!")
+##################################################
+# Gen user post from all tweet data
+##################################################
+# walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data"
+walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data\\18-26"
+file_list = []
+for root, subdirs, files in os.walk(walk_dir):
+        path, book_name = os.path.split(root)
+        all_text = ""
+        for filename in files:
+            # os.path.join => join str with //
+            file_path = os.path.join(root, filename)
+            file_list.append(file_path)
+
+# test
+#file_list = ["G:\\work\\TwitterAPI\\data\\test\\test.json"]
+###
+# count post from each user
+user_postcount = {}
+for filename in file_list:
+    print("Reading: %s.."%(filename))
+    with open(filename) as f:
+        data =json.load(f)
+        for twt in data['tweets']:
+            # Exclude Retweet
+            if twt['retweet_from_uid'] is None:
+                user_postcount[twt['uid']] = user_postcount.get(twt['uid'], 0) + 1
+
+# sort desc
+logging.info("Sorting user_postcount .."); print("Sorting user_postcount ..")
+user_postcount = sorted(user_postcount.items(), key=operator.itemgetter(1), reverse=True)
+
+#save as obj
+logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as user_postcount_no_retweet.pkl ..")
+save_object(user_postcount, 'user_postcount_no_retweet_18-26.pkl')
+
+#save as json
+logging.info("Saving as user_postcount_no_retweet.json .."); print("Saving as user_postcount_no_retweet.json ..")
+with open('user_postcount_no_retweet_18-26.json', 'w') as f:
+    json.dump(user_postcount, f)
+logging.info("All jobs done!"); print("All jobs done!")
 #
 #
 # ##################################################
 # # Gen user post stats and Find spam users
 # ##################################################
 # # # load object
-user_postcount = load_object('user_postcount_no_retweet.pkl')
+# user_postcount = load_object('user_postcount_no_retweet.pkl')
 #
 # import matplotlib.pyplot as plt
 # import numpy as np
@@ -196,39 +197,54 @@ user_postcount = load_object('user_postcount_no_retweet.pkl')
 # #
 # is_bot(962428211249471498)
 #
-# ######################################################3
-# # Gen users to check bot
-# ######################################################3
-# ## prepare set of users to check bot (post > 15 tweets)
-# check_users = [tup[0] for tup in user_postcount if tup[1]>15]
-# print("check_users users:%s"%(len(check_users)))
-# import math
-# chunk_size = math.ceil(len(check_users)/3)
-# spam_check_set1 = check_users[0:chunk_size]
-# spam_check_set2 = check_users[chunk_size:chunk_size*2]
-# spam_check_set3 = check_users[chunk_size*2:len(check_users)]
-# save_object(spam_check_set1,'spam_check_set1.pkl')
-# save_object(spam_check_set2,'spam_check_set2.pkl')
-# save_object(spam_check_set3,'spam_check_set3.pkl')
+######################################################3
+# Gen users to check bot
+######################################################3
+# #### test - prepare user from 18-26 June
+# user_postcount1 = load_object('user_postcount_no_retweet.pkl')
+# old_users = [tup[0] for tup in user_postcount1]
+# new_users = [tup[0] for tup in user_postcount if tup[1]>5]
 #
-# ## get result from botometer
-# bot_results = {}
-# error_user = {}
-# for idx, u in enumerate(spam_check_set1):
-#     print(idx)
-#     try:
-#         result = is_bot(u)
-#         id = result['user']['id_str']
-#         bot_results[id] = result
-#     except Exception as e:
-#         logging.info("Error user: %s | %s " % (u, str(e)))
-#         error_user[u] = str(e)
+# checked_user=[]
+# len(user_postcount)
+# for new in new_users:
+#     if new not in old_users:
+#         checked_user.append(new)
+# len(checked_user)
 #
-# save_object(bot_results, 'bot_results_set1.pkl')
-# save_object(error_user, 'error_user_set1.pkl')
-#
-# # # sort desc
-# # sorted_bot_results = sorted(bot_results.items(), key=operator.itemgetter(1), reverse=True)
+# user_postcount
+# ####
+
+## prepare set of users to check bot (post > 15 tweets)
+check_users = [tup[0] for tup in user_postcount if tup[1]>15]
+print("check_users users:%s"%(len(check_users)))
+import math
+chunk_size = math.ceil(len(check_users)/3)
+spam_check_set1 = check_users[0:chunk_size]
+spam_check_set2 = check_users[chunk_size:chunk_size*2]
+spam_check_set3 = check_users[chunk_size*2:len(check_users)]
+save_object(spam_check_set1,'16-18_spam_check_set1.pkl')
+save_object(spam_check_set2,'16-18_spam_check_set2.pkl')
+save_object(spam_check_set3,'16-18_spam_check_set3.pkl')
+
+## get result from botometer
+bot_results = {}
+error_user = {}
+for idx, u in enumerate(spam_check_set1):
+    print(idx)
+    try:
+        result = is_bot(u)
+        id = result['user']['id_str']
+        bot_results[id] = result
+    except Exception as e:
+        logging.info("Error user: %s | %s " % (u, str(e)))
+        error_user[u] = str(e)
+
+save_object(bot_results, 'bot_results_set1.pkl')
+save_object(error_user, 'error_user_set1.pkl')
+
+# # sort desc
+# sorted_bot_results = sorted(bot_results.items(), key=operator.itemgetter(1), reverse=True)
 
 # compare relationship of bot vs no. of tweets posted
 import pandas as pd
@@ -277,6 +293,7 @@ df = load_object('df_bot_results.pkl')
 bot_user = df[df.bot_score > 0.5][['uid', 'screen_name','bot_score']]
 bot_user.head
 save_object(bot_user, 'bot-from-bot_score.pkl')
+
 
 #### no. of bot in total
 # def count_bot(bot_prob_list):

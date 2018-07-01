@@ -65,6 +65,12 @@ class TweepyWrapper():
         callLeft = str(quota['/search/tweets']['remaining'])
         resetTime = datetime.datetime.fromtimestamp(quota['/search/tweets']['reset']).strftime('%Y-%m-%d %H:%M:%S')
         print("Quota (call/resetAt): " + callLeft + "/" + resetTime)
+    def printQuota(self,name,resource):
+        quotas = twt._api.rate_limit_status(name)['resources'][resource]
+        for quota in quotas:
+            callLeft = str(quota['remaining'])
+            resetTime = datetime.datetime.fromtimestamp(quota['reset']).strftime('%Y-%m-%d %H:%M:%S')
+            print("Quota (call/resetAt): " + callLeft + "/" + resetTime)
 
 ##############################################################
 # Configuration
@@ -74,16 +80,16 @@ logging.basicConfig(filename='history.log',level=logging.INFO, format='%(asctime
 
 ### Setup authentication
 # ## App1
-__CONSUMER_KEY = 'l9BvOKjP2Xj48I5wlc7Uh8sVN'
-__CONSUMER_SECRET = 'HMKOvmuCaReDIzc0GlzfjQGKFrdCJ9jHlRJd8AAp0e7PHfwl6H'
-__ACCESS_TOKEN = '982717247109189632-cdUZCv2mzMCDiPiHkdRDpUQXdRnFIvB'
-__ACCESS_TOKEN_SECRET = 'AaayN6WOC3rPcYIoBg1Cc5uEPeUbcrw2jFHhhZVlHzjGC'
+# __CONSUMER_KEY = 'l9BvOKjP2Xj48I5wlc7Uh8sVN'
+# __CONSUMER_SECRET = 'HMKOvmuCaReDIzc0GlzfjQGKFrdCJ9jHlRJd8AAp0e7PHfwl6H'
+# __ACCESS_TOKEN = '982717247109189632-cdUZCv2mzMCDiPiHkdRDpUQXdRnFIvB'
+# __ACCESS_TOKEN_SECRET = 'AaayN6WOC3rPcYIoBg1Cc5uEPeUbcrw2jFHhhZVlHzjGC'
 
-# ### App2
-# __CONSUMER_KEY = 'L7IX0KwYgQUGeC1TqnxULue1v'
-# __CONSUMER_SECRET = 'gRiqmdED0KFVjg6v2x9giQmctFLdAiFwEioCECuVCTJafp8byB'
-# __ACCESS_TOKEN = '982717247109189632-QRXdgrmZdhIy00do6D5o0wpdUMVKvJU'
-# __ACCESS_TOKEN_SECRET = 'szb7jQaVBe8JCf9iM23e3GBd7OgbuLRDxhTM6nU4L3QAp'
+### App2
+__CONSUMER_KEY = 'L7IX0KwYgQUGeC1TqnxULue1v'
+__CONSUMER_SECRET = 'gRiqmdED0KFVjg6v2x9giQmctFLdAiFwEioCECuVCTJafp8byB'
+__ACCESS_TOKEN = '982717247109189632-QRXdgrmZdhIy00do6D5o0wpdUMVKvJU'
+__ACCESS_TOKEN_SECRET = 'szb7jQaVBe8JCf9iM23e3GBd7OgbuLRDxhTM6nU4L3QAp'
 
 # ## App3
 # __CONSUMER_KEY = 'w3TysRbh9H6oKp5T8qVNeSEdl'
@@ -141,15 +147,15 @@ coinTags['eosio'] = "#eosio OR #eos"
 # coinTags['steem'] = "#steem"
 
 ### Build query
-
-query = ""
-for i, c in enumerate(coinTags.values()):
-    if i < len(coinTags)-1:
-        query += c + " OR "
-    else:
-        query += c
-query+=" since:"+collectingDataSince+" until:"+collectingDataUntil
-print(len(query))
+#
+# query = ""
+# for i, c in enumerate(coinTags.values()):
+#     if i < len(coinTags)-1:
+#         query += c + " OR "
+#     else:
+#         query += c
+# query+=" since:"+collectingDataSince+" until:"+collectingDataUntil
+# print(len(query))
 #########################################################################
 
 
@@ -160,6 +166,54 @@ print(len(query))
 # - save to neo4j
 # - analyse network to refine keywords
 
+
+def unixtime_to_time(unixtime):
+    return datetime.datetime.fromtimestamp(unixtime).strftime('%Y-%m-%d %H:%M:%S')
+
 # Initial wrapper
 twt = TweepyWrapper(__CONSUMER_KEY,__CONSUMER_SECRET,__ACCESS_TOKEN,__ACCESS_TOKEN_SECRET)
 tweets = twt.getTweetByUser('kinetiz10')
+
+# test lookup_user
+fri = twt._api.lookup_users(screen_names='thanadonf')
+
+### Example code for get friends and followers of a user
+page_count = 0
+followeres_list = []
+cur_pages = tweepy.Cursor(twt._api.followers_ids, screen_name='realDonaldTrump',cursor=1604727314529176973).pages()
+for followers in cur_pages:
+    page_count += 1
+    print("processing page: " + str(page_count) + " with " + str(len(followers)) + " followers...")
+    # add to list
+    followeres_list+=followers
+
+    # if error, next run use cur_pages.next_cursor of the last round: cursor = cur_pages.next_cursor
+    print('Prev/Next: %s/%s' %(cur_pages.prev_cursor, cur_pages.next_cursor))
+    print("Sample: " + str(followers[0]))
+
+len(followeres_list)
+twt.printQuota()
+
+## Get tweet from a users (limit at last 3,200 tweets)
+total_tweets = []
+page_count = 1
+cur_pages = tweepy.Cursor(twt._api.user_timeline, screen_name='realDonaldTrump', count=200).pages()
+for timeline in cur_pages:
+    print(page_count)
+    total_tweets+=timeline
+    page_count+=1
+
+
+lim = twt._api.rate_limit_status('followers')['resources']
+unixtime_to_time(lim['followers']['/followers/ids']['reset'])
+unixtime_to_time(1530395682)
+
+ret = twt._api.user_timeline('thanadonf')
+
+
+
+
+lim = twt._api.rate_limit_status('statuses')['resources']
+lim
+unixtime_to_time(lim['statuses']['/followers/ids']['reset'])
+unixtime_to_time(1530395682)

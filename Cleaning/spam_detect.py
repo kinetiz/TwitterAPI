@@ -1,3 +1,4 @@
+import random
 import botometer
 import logging
 import pandas as pd
@@ -123,19 +124,20 @@ user_postcount = sorted(user_postcount.items(), key=operator.itemgetter(1), reve
 
 #save as obj
 logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as user_postcount_no_retweet.pkl ..")
-save_object(user_postcount, 'user_postcount_no_retweet_18-26.pkl')
+# save_object(user_postcount, 'user_postcount_no_retweet_18-26.pkl')
 
-#save as json
-logging.info("Saving as user_postcount_no_retweet.json .."); print("Saving as user_postcount_no_retweet.json ..")
-with open('user_postcount_no_retweet_18-26.json', 'w') as f:
-    json.dump(user_postcount, f)
-logging.info("All jobs done!"); print("All jobs done!")
+# #save as json
+# logging.info("Saving as user_postcount_no_retweet.json .."); print("Saving as user_postcount_no_retweet.json ..")
+# with open('user_postcount_no_retweet_18-26.json', 'w') as f:
+#     json.dump(user_postcount, f)
+# logging.info("All jobs done!"); print("All jobs done!")
 #
 #
 # ##################################################
 # # Gen user post stats and Find spam users
 # ##################################################
 # # # load object
+user_postcount = load_object('1806-26062018//user_postcount_no_retweet_18-26.pkl')
 # user_postcount = load_object('user_postcount_no_retweet.pkl')
 #
 # import matplotlib.pyplot as plt
@@ -223,9 +225,9 @@ chunk_size = math.ceil(len(check_users)/3)
 spam_check_set1 = check_users[0:chunk_size]
 spam_check_set2 = check_users[chunk_size:chunk_size*2]
 spam_check_set3 = check_users[chunk_size*2:len(check_users)]
-save_object(spam_check_set1,'16-18_spam_check_set1.pkl')
-save_object(spam_check_set2,'16-18_spam_check_set2.pkl')
-save_object(spam_check_set3,'16-18_spam_check_set3.pkl')
+# save_object(spam_check_set1,'16-18_spam_check_set1.pkl')
+# save_object(spam_check_set2,'16-18_spam_check_set2.pkl')
+# save_object(spam_check_set3,'16-18_spam_check_set3.pkl')
 
 ## get result from botometer
 bot_results = {}
@@ -250,15 +252,16 @@ save_object(error_user, 'error_user_set1.pkl')
 import pandas as pd
 
 # combine the results into one object
-bot_results_set1 = load_object('bot_results_set1.pkl')
-bot_results_set2 = load_object('bot_results_set2.pkl')
-bot_results_set3 = load_object('bot_results_set3.pkl')
+bot_results_set1 = load_object('1205-17062018//bot_results_set1.pkl')
+bot_results_set2 = load_object('1205-17062018//bot_results_set2.pkl')
+bot_results_set3 = load_object('1205-17062018//bot_results_set3.pkl')
 
 bot_results = {}
 bot_results.update(bot_results_set1)
 bot_results.update(bot_results_set2)
 bot_results.update(bot_results_set3)
 
+save_object(bot_results, 'all_1205-26062018//bot_results_all_users.pkl')
 
 df = pd.DataFrame(columns=['bot_cap','bot_score','bot_cat_content'
         ,'bot_cat_friend','bot_cat_network','bot_cat_sentiment'
@@ -285,15 +288,42 @@ for idx, user_twt in enumerate(user_postcount):
         print('%d: %s has been processed..'%(idx,screen_name))
 
 # # df.sort_values(by="twt")
-# save_object(df,'df_bot_results.pkl')
+# save_object(df,'all_1205-26062018//df_bot_results.pkl')
 
-df = load_object('df_bot_results.pkl')
+
+########################################################################################################
+# Verify bot accuracy
+########################################################################################################
+
+df = load_object('all_1205-26062018//df_bot_results.pkl')
+## prepare user_name| botscore dataframe
+name_score_df = df[['screen_name','bot_score','twt']]
+name_score_df = name_score_df.sort_values(by=['bot_score'], ascending=True)
+
+
+# ## sample 10 users from each decile
+# for i in range(0,10):
+#     r = i*0.1
+#     ## sample 10 times
+#     for j in range(10):
+#         q = random.uniform(r, r+0.1)
+#         sample = name_score_df.quantile(q=q, interpolation='nearest', numeric_only=False)
+#         sample_df = sample_df.append(sample)
+sample_df = pd.DataFrame()
+sample_size = 10
+for i in range(0,10):
+    r = i * 0.1
+    sample = name_score_df.loc[name_score_df['bot_score']>r].loc[name_score_df['bot_score']<=r+0.1].sample(sample_size)
+    sample_df = sample_df.append(sample)
+
+sample_df.to_csv('deciles_bot_sample.csv', encoding='utf-8', index=False)
+
+
 
 ### select bot
 bot_user = df[df.bot_score > 0.5][['uid', 'screen_name','bot_score']]
 bot_user.head
 save_object(bot_user, 'bot-from-bot_score.pkl')
-
 
 #### no. of bot in total
 # def count_bot(bot_prob_list):

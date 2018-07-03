@@ -90,11 +90,11 @@ def save_object(obj, filename):
     with open(filename, 'wb') as output:  # Overwrites any existing file.
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
-##################################################
-# Gen user post from all tweet data
-##################################################
+# ##################################################
+# # Gen user post from all tweet data
+# ##################################################
 # walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data"
-walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data\\18-26"
+walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data"
 file_list = []
 for root, subdirs, files in os.walk(walk_dir):
         path, book_name = os.path.split(root)
@@ -103,10 +103,10 @@ for root, subdirs, files in os.walk(walk_dir):
             # os.path.join => join str with //
             file_path = os.path.join(root, filename)
             file_list.append(file_path)
-
-# test
-#file_list = ["G:\\work\\TwitterAPI\\data\\test\\test.json"]
-###
+#
+# # test
+# #file_list = ["G:\\work\\TwitterAPI\\data\\test\\test.json"]
+# ###
 # count post from each user
 user_postcount = {}
 for filename in file_list:
@@ -114,17 +114,17 @@ for filename in file_list:
     with open(filename) as f:
         data =json.load(f)
         for twt in data['tweets']:
-            # Exclude Retweet
+            # #Exclude Retweet
             if twt['retweet_from_uid'] is None:
                 user_postcount[twt['uid']] = user_postcount.get(twt['uid'], 0) + 1
 
-# sort desc
-logging.info("Sorting user_postcount .."); print("Sorting user_postcount ..")
-user_postcount = sorted(user_postcount.items(), key=operator.itemgetter(1), reverse=True)
-
-#save as obj
-logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as user_postcount_no_retweet.pkl ..")
-# save_object(user_postcount, 'user_postcount_no_retweet_18-26.pkl')
+# # sort desc
+# logging.info("Sorting user_postcount .."); print("Sorting user_postcount ..")
+# user_postcount = sorted(user_postcount.items(), key=operator.itemgetter(1), reverse=True)
+#
+# #save as obj
+# logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as user_postcount_no_retweet.pkl ..")
+# # save_object(user_postcount, 'user_postcount_no_retweet_18-26.pkl')
 
 # #save as json
 # logging.info("Saving as user_postcount_no_retweet.json .."); print("Saving as user_postcount_no_retweet.json ..")
@@ -137,8 +137,8 @@ logging.info("Saving as user_postcount_no_retweet.pkl .."); print("Saving as use
 # # Gen user post stats and Find spam users
 # ##################################################
 # # # load object
-user_postcount = load_object('1806-26062018//user_postcount_no_retweet_18-26.pkl')
-# user_postcount = load_object('user_postcount_no_retweet.pkl')
+
+user_postcount = load_object('user_postcount_no_retweet.pkl')
 #
 # import matplotlib.pyplot as plt
 # import numpy as np
@@ -218,7 +218,7 @@ user_postcount = load_object('1806-26062018//user_postcount_no_retweet_18-26.pkl
 # ####
 
 ## prepare set of users to check bot (post > 15 tweets)
-check_users = [tup[0] for tup in user_postcount if tup[1]>15]
+check_users = [v for v in user_postcount.values() if v>20]
 print("check_users users:%s"%(len(check_users)))
 import math
 chunk_size = math.ceil(len(check_users)/3)
@@ -289,35 +289,6 @@ for idx, user_twt in enumerate(user_postcount):
 
 # # df.sort_values(by="twt")
 # save_object(df,'all_1205-26062018//df_bot_results.pkl')
-
-
-########################################################################################################
-# Verify bot accuracy
-########################################################################################################
-
-df = load_object('all_1205-26062018//df_bot_results.pkl')
-## prepare user_name| botscore dataframe
-name_score_df = df[['screen_name','bot_score','twt']]
-name_score_df = name_score_df.sort_values(by=['bot_score'], ascending=True)
-
-
-# ## sample 10 users from each decile
-# for i in range(0,10):
-#     r = i*0.1
-#     ## sample 10 times
-#     for j in range(10):
-#         q = random.uniform(r, r+0.1)
-#         sample = name_score_df.quantile(q=q, interpolation='nearest', numeric_only=False)
-#         sample_df = sample_df.append(sample)
-sample_df = pd.DataFrame()
-sample_size = 10
-for i in range(0,10):
-    r = i * 0.1
-    sample = name_score_df.loc[name_score_df['bot_score']>r].loc[name_score_df['bot_score']<=r+0.1].sample(sample_size)
-    sample_df = sample_df.append(sample)
-
-sample_df.to_csv('deciles_bot_sample.csv', encoding='utf-8', index=False)
-
 
 
 ### select bot
@@ -412,3 +383,59 @@ save_object(bot_user, 'bot-from-bot_score.pkl')
 # ax.set_title('No. of tweets vs Bot probability(%s)'%(measure))
 # # print total bots identified
 # print("%s = Bot/AllUsers : %d/%d"%(measure, count_bot(y),len(y)))
+
+
+
+
+###***************************************###***************************************
+# Adhoc code
+###***************************************###***************************************
+
+# ########################################################################################################
+# # Verify bot accuracy
+# ########################################################################################################
+# df = load_object('all_1205-26062018//df_bot_results.pkl')
+# ## prepare user_name| botscore dataframe
+# name_score_df = df[['screen_name','bot_score','twt']]
+# name_score_df = name_score_df.sort_values(by=['bot_score'], ascending=True)
+#
+#
+# # ## sample 10 users from each decile
+# # for i in range(0,10):
+# #     r = i*0.1
+# #     ## sample 10 times
+# #     for j in range(10):
+# #         q = random.uniform(r, r+0.1)
+# #         sample = name_score_df.quantile(q=q, interpolation='nearest', numeric_only=False)
+# #         sample_df = sample_df.append(sample)
+# sample_df = pd.DataFrame()
+# sample_size = 10
+# for i in range(0,10):
+#     r = i * 0.1
+#     sample = name_score_df.loc[name_score_df['bot_score']>r].loc[name_score_df['bot_score']<=r+0.1].sample(sample_size)
+#     sample_df = sample_df.append(sample)
+#
+# sample_df.to_csv('deciles_bot_sample.csv', encoding='utf-8', index=False)
+
+
+# ######################################################################################
+# # Consolidate users from 1806-2606 and from 1205-1706
+# ######################################################################################
+# user_postcount = load_object('1806-26062018//user_postcount_no_retweet_18-26.pkl')
+# user_postcount_old = load_object('1205-17062018//user_postcount_no_retweet.pkl')
+# user_list_old = [i[0] for i in user_postcount_old]
+# user_list_new = [i[0] for i in user_postcount]
+# all_users = user_list_old+user_list_new
+# all_distinct_users = set(all_users)
+#
+# d_user_postcount_old = dict(user_postcount_old)
+# d_user_postcount = dict(user_postcount)
+# for uid,count in d_user_postcount.items():
+#     d_user_postcount_old[uid] = d_user_postcount_old.get(uid, 0) + count
+#
+# len(d_user_postcount_old)
+# sorted_user_postcount = sorted(d_user_postcount_old.items(), key=operator.itemgetter(1), reverse=True)
+# len(sorted_user_postcount)
+# save_object(sorted_user_postcount,'all_1205-26062018//all_user_postcount.pkl')
+# ###########################################################################
+len(sorted_user_postcount)

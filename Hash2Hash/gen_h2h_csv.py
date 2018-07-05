@@ -2,6 +2,9 @@
 # Input: json file
 # Output: csv file |h1,h2,count|
 ######
+from sklearn.preprocessing import MinMaxScaler
+import copy
+import pandas as pd
 import json
 import os
 import logging
@@ -59,7 +62,7 @@ data = {
 # #######################################
 # min_count_threshold = 0 # will be set below
 # # spam_users = list(dict(load_object('excluded_user.pkl')).keys())
-# spam_users = load_object('bot-from-bot_score.pkl')
+# spam_users = load_object('20180513-0626//bot-from-bot_score.pkl')
 # spam_users = list(spam_users.uid.values)
 #
 # start = datetime.datetime.now()
@@ -75,7 +78,7 @@ data = {
 #
 # # Prepare cleaned hashtag
 # #Get json file path
-# walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data\\18-26\\later"
+# walk_dir = "G:\\work\\TwitterAPI\\data\\cleaned_data"
 # file_list = []
 # for root, subdirs, files in os.walk(walk_dir):
 #     path, book_name = os.path.split(root)
@@ -112,88 +115,98 @@ data = {
 #                 hashtag_count[tag] = hashtag_count.get(tag, 0) + 1
 #
 # # save objects
-# save_object(hashtag_count, 'later_hashtags_count_no_rt_and_bot_score.pkl')
-# save_object(clean_tweet_hashtag,'later_clean_tweet_hashtag_no_rt_and_bot_score.pkl')
+# save_object(hashtag_count, 'hashtags_count_0513-0626.pkl')
+# save_object(clean_tweet_hashtag,'clean_tweet_hashtag_0513-0626.pkl')
+
+# ############ test - combine hashtag
+# clean_later = load_object('later_clean_tweet_hashtag_no_rt_and_bot_score.pkl')
+# hashtag_later = load_object('later_hashtags_count_no_rt_and_bot_score.pkl')
+# clean_s1 = load_object('s1_clean_tweet_hashtag_no_rt_and_bot_score.pkl')
+# hashtag_s1 = load_object('s1_hashtags_count_no_rt_and_bot_score.pkl')
+# hashtag_old = load_object('20180512-0617\\hashtags_count_no_rt_and_bot_score.pkl')
+# clean_old= load_object('20180512-0617\\clean_tweet_hashtag_no_rt_and_bot_score.pkl')
 #
-# # ############ test - combine hashtag
-# # clean_later = load_object('later_clean_tweet_hashtag_no_rt_and_bot_score.pkl')
-# # hashtag_later = load_object('later_hashtags_count_no_rt_and_bot_score.pkl')
-# # clean_s1 = load_object('s1_clean_tweet_hashtag_no_rt_and_bot_score.pkl')
-# # hashtag_s1 = load_object('s1_hashtags_count_no_rt_and_bot_score.pkl')
-# # hashtag_old = load_object('20180512-0617\\hashtags_count_no_rt_and_bot_score.pkl')
-# # clean_old= load_object('20180512-0617\\clean_tweet_hashtag_no_rt_and_bot_score.pkl')
-# #
-# # # combine hashtag
-# # for tag, count in hashtag_later.items():
-# #     print(tag)
-# #     print(count)
-# #     # get hashtag in dict and update count. If not exists just return 0 and plus 1
-# #     hashtag_s1[tag] = hashtag_s1.get(tag, 0) + count
-# #
-# # for tag, count in hashtag_s1.items():
-# #     # get hashtag in dict and update count. If not exists just return 0 and plus 1
-# #     hashtag_old[tag] = hashtag_old.get(tag, 0) + count
-# #
-# # save_object(hashtag_old, '20180513-0626\\hashtags_count_no_rt_and_bot_score.pkl')
-# #
-# # # combine clean hashtag
-# # clean_tweet_hashtag = clean_old + clean_s1 + clean_later
-# #
-# # save_object(clean_tweet_hashtag,'20180513-0626\\clean_tweet_hashtag_no_rt_and_bot_score.pkl')
-# # ##################################
-# ##
+# # combine hashtag
+# for tag, count in hashtag_later.items():
+#     print(tag)
+#     print(count)
+#     # get hashtag in dict and update count. If not exists just return 0 and plus 1
+#     hashtag_s1[tag] = hashtag_s1.get(tag, 0) + count
 #
-# # # load from processed objects
-hashtag_count = load_object('20180513-0626\\hashtags_count_no_rt_and_bot_score.pkl')
-clean_tweet_hashtag = load_object('20180513-0626\\clean_tweet_hashtag_no_rt_and_bot_score.pkl')
+# for tag, count in hashtag_s1.items():
+#     # get hashtag in dict and update count. If not exists just return 0 and plus 1
+#     hashtag_old[tag] = hashtag_old.get(tag, 0) + count
+#
+# save_object(hashtag_old, '20180513-0626\\hashtags_count_no_rt_and_bot_score.pkl')
+#
+# # combine clean hashtag
+# clean_tweet_hashtag = clean_old + clean_s1 + clean_later
+#
+# save_object(clean_tweet_hashtag,'20180513-0626\\clean_tweet_hashtag_no_rt_and_bot_score.pkl')
+# ##################################
+##
 
 ####################################################################################
 # Set Threshold of hashtag count and keep only hashtag with count higher than threshold
 ####################################################################################
 
+# # # load from processed objects
+hashtag_count = load_object('hashtags_count_0513-0626.pkl')
+clean_tweet_hashtag = load_object('clean_tweet_hashtag_0513-0626.pkl')
+
 ### Set Threshold 2 options
 # 1. Use mean
-# min_count_threshold = np.mean(list(hashtag_count.values()))
-mean_threshold = np.mean(list(hashtag_count.values()))
-upper_threshold = np.mean(list(hashtag_count.values()))*2
-lower_threshold = np.mean(list(hashtag_count.values()))/2
-min_count_threshold = mean_threshold
+# top 5000 (4983) by threshold = 49. If uses mean get 4470 hashtags
+mean_threshold = np.mean(list(hashtag_count.values()))#57.5
+# top1000 hashtags left (1001)
+upper_threshold = 415 # np.mean(list(hashtag_count.values()))*3#172.4
+# top10000 hashtags left (10328)
+lower_threshold = 18 # np.mean(list(hashtag_count.values()))/3#19.2
 
-# # 2. Calculate Threshold from 10% of lowest count of hashtag in the coin list
-# coins = ['bitcoin','btc','ethereum','eth','ether','ripple','xrp','bitcoincash','bch','eosio','eos','litecoin','ltc','cardano','ada','stellar','xlm','iota','miota','tron','trx','neo','monero','xmr','dash','nem','xem','tether','usdt','vechain','ven','ethereumclassic','etc','bytecoin','bcn','binancecoin','bnb','qtum','zcash','zec','icx','omisego','lisk','lsk','zilliqa','zil','bitcoingold','btg','aeternity','ae','ontology','ont','verge','xvg','steem']
-# coin_hash_count = {}
-# for key in coins:
-#     coin_hash_count[key] = hashtag_count[key]
-# coin_hash_count = sorted(coin_hash_count.items(), key=operator.itemgetter(1), reverse=True)
-# coin_hash_count[len(coin_hash_count)-1]
-# # set threshold to 10% of the least frequent coin count
-# min_count_threshold = coin_hash_count[len(coin_hash_count)-1][1]*0.1
+min_count_threshold = lower_threshold
 
-#Remove hashtag below threshold from each tweet
-filtered_hashtag_in_twts = []
-included_hashtags = list(filter(lambda x: hashtag_count[x] > min_count_threshold, hashtag_count))
+# included_hashtags = list(filter(lambda x: hashtag_count[x] > min_count_threshold, hashtag_count))
+included_hashtags={}
+
+for tag, count in hashtag_count.items():
+    if count > min_count_threshold:
+        included_hashtags[tag] = count
+len(included_hashtags)
 print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + ' - Removing hashtags below threshold..')
-for idx, hset in enumerate(clean_tweet_hashtag):
-    # add new list to fix problem that entry of list removed on the way making the loop skipping the next entry
-    new_hset = []
-    [new_hset.append(h) for h in hset if h in included_hashtags]
-    filtered_hashtag_in_twts.append(new_hset)
 
-# print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + 'Done Cleaning spent: ' + str(datetime.datetime.now() - start))
+# Make a deep copy of hashtag set removed excluding tag below threshold
+# filtered_hashtag_in_twts = copy.deepcopy(clean_tweet_hashtag)
+included_hashtag_keywords = list(included_hashtags.keys())
+ii=0
+for tag_set in clean_tweet_hashtag:
+    ii+=1
+    # add new list to fix problem that entry of list removed on the way making the loop skipping the next entry
+    for tag in list(tag_set):
+        if tag not in included_hashtag_keywords:
+            #print(tag + ' is removed')
+            tag_set.remove(tag)
+filtered_hashtag_in_twts = clean_tweet_hashtag
+print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + 'Done Cleaning')
 
 print("Minimum threshold: " + str(min_count_threshold))
 print("Total hashtag: "+ str(len(hashtag_count)))
 print("Frequent hashtag: "+ str(len(included_hashtags)))
 
-save_object(included_hashtags,'20180513-0626\\mean_hashtags.pkl')
-save_object(filtered_hashtag_in_twts,'20180513-0626\\mean_filtered_hashtag_in_twts.pkl')
+save_object(included_hashtags,'lower-mean_included_hashtags.pkl')
+save_object(filtered_hashtag_in_twts,'lower-mean_filtered_hashtag_in_twts.pkl')
+# save_object(included_hashtags,'upper_mean_hashtags.pkl')
+# save_object(filtered_hashtag_in_twts,'upper_mean_filtered_hashtag_in_twts.pkl')
+# save_object(included_hashtags,'lower_mean_hashtags.pkl')
+# save_object(filtered_hashtag_in_twts,'lower_mean_filtered_hashtag_in_twts.pkl')
 
-######## gen 3 sets of node and edges file for gephi
-# file_set = ['mean', 'upper-mean', 'lower-mean']
-file_set = ['mean']
+############################################################################################
+# gen 3 sets of node and edges file for gephi
+############################################################################################
+file_set = ['mean', 'upper-mean', 'lower-mean']
+# file_set = ['mean']
 for set_name in file_set:
-    # included_hashtags = load_object('20180512-0617\\above-%s_hashtags_botscore.pkl'%(set_name))
-    # filtered_hashtag_in_twts = load_object('20180512-0617\\above-%s_filtered_hashtag_in_twts_botscore.pkl'%(set_name))
+    included_hashtags = load_object('%s_included_hashtags.pkl'%(set_name))
+    filtered_hashtag_in_twts = load_object('%s_filtered_hashtag_in_twts.pkl'%(set_name))
 
     # ## test
     # clean_tweet_hashtag = clean_tweet_hashtag[0:2]
@@ -223,7 +236,7 @@ for set_name in file_set:
     dict_co_hashtag = {}
     processed_tag = []
     # count co-occurrence hashtags for each main hashtag one-by-one
-    for main_tag in main_hashtags:
+    for main_tag in list(main_hashtags.keys()):
         start2 = datetime.datetime.now()
 
         # add processed tag to a list to avoid duplicate pairs
@@ -242,43 +255,110 @@ for set_name in file_set:
         dict_co_hashtag[main_tag] = dict_co_tag.copy()
         print(str(main_tag) + ": " + str(datetime.datetime.now() - start2))
 
-    # save_object(dict_co_hashtag, '20180513-0626\\%s_dict_co_hashtag.pkl'%set_name)
+    save_object(dict_co_hashtag, '%s_dict_co_hashtag.pkl'%set_name)
     print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + 'Done Finding spent: ' + str(datetime.datetime.now() - start))
     logging.info('Done finding Co-occurring hashtag')
 
+file_set = ['mean', 'upper-mean', 'lower-mean']
+# file_set = ['mean']
+for set_name in file_set:
+    ############################################################################################
+    # Build probability matrix of hashtag - to normalise co-occurrence network
+    ############################################################################################
+    # set_name = 'mean'
+    # included_hashtags = load_object('G:\\work\\TwitterAPI\\Hash2Hash\\20180512-0617\\above-lower-mean_hashtags_botscore.pkl')
+    included_hashtags = load_object('%s_included_hashtags.pkl' % set_name)
+    dict_co_hashtag = load_object("%s_dict_co_hashtag.pkl" % set_name)
+    d = {'a': [], 'b': [], 'p(a)': [], 'p(b)': [], 'p(a)p(b)': [], 'p(a,b)': [], 'p(a,b)-p(a)p(b)': []}
+    df_cotag = pd.DataFrame(data=d)
+    total_tag = np.sum(list(included_hashtags.values()))
 
-    # dict_co_hashtag = load_object('20180512-0617\\%s_dict_co_hashtag.pkl'%set_name)
-    ### 3) Generate co-occurrence hashtag file
-    start = datetime.datetime.now()
-    print(str(start) + ' - Save file..')
+    for a, b_list in dict_co_hashtag.items():
+        # prepare list to assign data
+        a_list, prob_a_list, prob_b_list, prob_a_prob_b_list, prob_ab_list, norm_weight_list = [], [], [], [], [], []
 
-    logging.info('Generating Node.csv ..')
-    # prepare node file
-    with open('20180513-0626\\nodes_%s.csv'%(set_name),'w',newline='',encoding='utf-8') as f:
-        w = csv.writer(f)
-        w.writerow(['id','label'])
-        # sort asc
-        included_hashtags.sort()
-        for id, name in enumerate(included_hashtags):
-            w.writerow([id, name])
+        prob_a = included_hashtags[a] / total_tag
+        for b, count in b_list.items():
+            prob_b = included_hashtags[b] / total_tag
+            prob_a_prob_b = prob_a * prob_b
+            prob_ab = count / total_tag
+            a_list.append(a)
+            prob_a_list.append(prob_a)
+            prob_b_list.append(prob_b)
+            prob_a_prob_b_list.append(prob_a_prob_b)
+            prob_ab_list.append(prob_ab)
+            # normalise weight by p(a,b) - p(a)p(b) means minus by prob that happen by chance
+            norm_weight_list.append(prob_ab - prob_a_prob_b)
+        df = pd.DataFrame(
+            {'a': a_list, 'b': list(b_list), 'p(a)': prob_a_list, 'p(b)': prob_b_list,
+             'p(a)p(b)': prob_a_prob_b_list, 'p(a,b)': prob_ab_list, 'p(a,b)-p(a)p(b)': norm_weight_list})
 
-    logging.info('Generating Edge.csv ..')
-    ## prepare edge file
-    with open('20180513-0626\\edges_all_%s.csv'%(set_name),'w',newline='',encoding='utf-8') as f:
-        w = csv.writer(f)
-        w.writerow(['Source','Target','Weight'])
-        for main_tag, co_tags in dict_co_hashtag.items():
-            src_id = included_hashtags.index(main_tag)
-            for tag, cooccur_count in co_tags.items():
-                    target_id = included_hashtags.index(tag)
-                    w.writerow([src_id, target_id, cooccur_count])
+        # concat to the main df
+        df_cotag = pd.concat([df_cotag, df])
 
-    logging.info('Complete generating node and edge..')
+    # Keep only P(a,b) > P(a)P(b). Thus, not co-occur by chance
+    df_normalised_cotag = df_cotag.loc[df_cotag['p(a,b)'] > df_cotag['p(a)p(b)']]
+    df_exclued_cotag = df_cotag.loc[df_cotag['p(a,b)'] <= df_cotag['p(a)p(b)']]
+
+    df_cotag.to_csv('%s_full_cotag.csv' % set_name, encoding='utf-8', index=False)
+    df_normalised_cotag.to_csv('%s_normalised_cotag.csv' % set_name, encoding='utf-8', index=False)
+    df_exclued_cotag.to_csv('%s_excluded_cotag.csv' % set_name, encoding='utf-8', index=False)
+
+    # write file for Gephi
+    df_gephi = df_normalised_cotag[['a', 'b', 'p(a,b)-p(a)p(b)']]
+    df_gephi.columns = ['source', 'target', 'weight']
+    scaler = MinMaxScaler(feature_range=(1, 10))
+    scaler.fit(df_gephi[['weight']])
+    df_gephi.loc[:, 'weight'] = scaler.transform(df_gephi[['weight']])
+    df_gephi.to_csv('gephi_%s_normalised_cotag.csv' % set_name, encoding='utf-8', index=False)
+
+    print(datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + 'Done ' + set_name)
+logging.info('Done create hashtag probability matrix')
+
+from sklearn.preprocessing import MinMaxScaler
+df_normalised_cotag = pd.read_csv('20180513-0626//mean_normalised_cotag.csv')
+
+df_gephi = df_normalised_cotag[['a', 'b', 'p(a,b)-p(a)p(b)']]
+df_gephi.columns=['source', 'target', 'weight']
+scaler = MinMaxScaler(feature_range=(1,10))
+scaler.fit(df_gephi[['weight']])
+df_gephi.loc[:,'weight'] = scaler.transform(df_gephi[['weight']])
+df_gephi.to_csv('gephi_mean_normalised_cotag.csv', encoding='utf-8', index=False)
 
 
-# ########################################################
+    # # dict_co_hashtag = load_object('20180512-0617\\%s_dict_co_hashtag.pkl'%set_name)
+    # ### 3) Generate co-occurrence hashtag file
+    # start = datetime.datetime.now()
+    # print(str(start) + ' - Save file..')
+    #
+    # logging.info('Generating Node.csv ..')
+    # # prepare node file
+    # with open('20180513-0626\\nodes_%s.csv'%(set_name),'w',newline='',encoding='utf-8') as f:
+    #     w = csv.writer(f)
+    #     w.writerow(['id','label'])
+    #     # sort asc
+    #     included_hashtags.sort()
+    #     for id, name in enumerate(included_hashtags):
+    #         w.writerow([id, name])
+    #
+    # logging.info('Generating Edge.csv ..')
+    # ## prepare edge file
+    # with open('20180513-0626\\edges_all_%s.csv'%(set_name),'w',newline='',encoding='utf-8') as f:
+    #     w = csv.writer(f)
+    #     w.writerow(['Source','Target','Weight'])
+    #     for main_tag, co_tags in dict_co_hashtag.items():
+    #         src_id = included_hashtags.index(main_tag)
+    #         for tag, cooccur_count in co_tags.items():
+    #                 target_id = included_hashtags.index(tag)
+    #                 w.writerow([src_id, target_id, cooccur_count])
+    #
+    # logging.info('Complete generating node and edge..')
+
+
+
+############################################################################################
 # # Analysing stats of hashtag
-# ########################################################
+############################################################################################
 # # Prepare data
 # hashtag_above_lower_mean = load_object('above-lower-mean_hashtags_botscore.pkl')
 # print(len(hashtag_above_lower_mean))
@@ -364,9 +444,9 @@ for set_name in file_set:
 
 
 
-##############################################
+############################################################################################
 # Analyse co-occurrence hashtag
-##############################################
+############################################################################################
 dict_co_hashtag = load_object('20180512-0617\\%s_dict_co_hashtag.pkl' % "mean")
 count = []
 for m in dict_co_hashtag.values():

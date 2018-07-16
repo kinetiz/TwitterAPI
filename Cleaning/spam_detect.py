@@ -138,7 +138,8 @@ for filename in file_list:
 # ##################################################
 # # # load object
 
-user_postcount = load_object('user_postcount_no_retweet.pkl')
+user_postcount = load_object('all_1205-26062018//user_postcount_no-RT.pkl')
+sorted(user_postcount.items(), key=operator.itemgetter(1), reverse=True)
 #
 # import matplotlib.pyplot as plt
 # import numpy as np
@@ -438,4 +439,27 @@ save_object(bot_user, 'bot-from-bot_score.pkl')
 # len(sorted_user_postcount)
 # save_object(sorted_user_postcount,'all_1205-26062018//all_user_postcount.pkl')
 # ###########################################################################
-len(sorted_user_postcount)
+#len(sorted_user_postcount)
+
+################################################################################################
+# [Adhoc] - add bot manually detected 13/07/2018
+################################################################################################
+df = load_object("all_1205-26062018\\df_bot_results.pkl")
+real_user = df[df.bot_score <= 0.5][['uid', 'screen_name','bot_score','twt']]
+real_user = real_user.sort_values(by=['twt'], ascending=False)
+
+#not bot -> manually detected from user with tweet > 300
+human_list = ["CryptoNewswire","Si_ILhaam","InfoProNetwork","recentpoker","DomainBookers","tio_cecak","3rdcubenet","distinctivefork","StackEthereum","HoldYourColors","tarmedia","zinson01","Brianlee011","zxrcoin","Jaslinbor","jonalva01","dellmoon01","Cryptodreem","Stocktrader","WLFOFMYST","cryptinsight","BitcoinCom","crypto_sarah9","BlockChannel","Harlo_2911","Kasou__Tuka","marketranger","EOTCOIN","DaveCryptos","CryptoMento","Bitcoin_Korea","sniperstube","DJ_Erock23","JoeManzanares","WHardingKY","BTCTN","BNC_markets","AltcoinNewsFeed","kayaponpon","TokenChanger","TRX_News","MADinMelbourne","itsmeknowitall","MilaSafert","comistaken","StatraderCom","arbhie01","PortsmouthBTC","BlockPulse360","ThisIsCryptoo","devnullius","CoinDeskMarkets","mundobtc","btc_manager","TradingCripto","DavanishFauzi","ellecrypto","loreto_j","BrianDColwell","BitcoinTrack","jdebunt","Sertong81","bitdays_jp","SmartPhonesTube","CryptoAka","minfatin","tejas0508","magolnick","PWIPhotography","cryptonatorFR"]
+
+# extract bot list
+doubt = real_user[real_user.twt >= 300]
+bot = pd.DataFrame(columns = ['uid','screen_name','bot_score'])
+for i, row in doubt.iterrows():
+    if row.screen_name not in human_list:
+        bot.loc[i] = row[['uid','screen_name','bot_score']]
+
+# merge with bot detected by botometer
+df_bot = load_object("all_1205-26062018\\bot-from-bot_score.pkl")
+df_bot = pd.concat([df_bot, bot])
+save_object(df_bot,"all_1205-26062018\\bot-from-bot_score-and-manual-check.pkl")
+################################################################################################

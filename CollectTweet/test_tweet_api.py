@@ -1,3 +1,4 @@
+import pandas as pd
 import tweepy
 import json
 import logging
@@ -194,7 +195,8 @@ for followers in cur_pages:
 len(followeres_list)
 twt.printQuota()
 
-## Get tweet from a users (limit at last 3,200 tweets)
+## Get tweet from a users (limit at last 3,200 tweets) -> lim200/call -> 16 call/user -> 10,000 user = 160k calls
+## 15 min = 1500 call = 1min/100 call -> need 1600 min = 1600/60 = 27 hr -> 5 app = 27/5 ~ 6 hrs for 10,000 users.
 total_tweets = []
 page_count = 1
 cur_pages = tweepy.Cursor(twt._api.user_timeline, screen_name='realDonaldTrump', count=200).pages()
@@ -217,3 +219,7 @@ lim = twt._api.rate_limit_status('statuses')['resources']
 lim
 unixtime_to_time(lim['statuses']['/followers/ids']['reset'])
 unixtime_to_time(1530395682)
+
+a1,a2,a3,a4,a5,a6,a7,a8,a9 = 4/19,3/19, 2/19, 2/19, 2/19, 2/19, 2/19, 1/19, 1/19
+b1 = 1/1
+-(b1*(math.log(b1) + (a1)*(math.log(a1))+ (a2)*(math.log(a2))+ (a3)*(math.log(a3))+ (a4)*(math.log(a4))+ (a5)*(math.log(a5))+ (a6)*(math.log(a6))+ (a7)*(math.log(a7))+ (a8)*(math.log(a8))+ (a9)*(math.log(a9)) ))

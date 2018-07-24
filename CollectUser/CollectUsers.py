@@ -151,11 +151,11 @@ class TweepyWrapper():
 ##############################################################
 # Configuration
 ##############################################################
-rerun_mode = 2 # run from error? 0:No, 1:Unauthorized, 2:fromCursor
-error_uid = 3367334171
+rerun_mode = 0 # run from error? 0:No, 1:Unauthorized, 2:fromCursor
+error_uid = 25965585
 # var for recovery from cursor
-error_cursor = 1568733199122954827
-error_page = 62
+error_cursor = 1553447401708251160
+error_page = 40
 error_page -= 1
 
 folder = "data//"
@@ -169,13 +169,13 @@ twt = TweepyWrapper(authen_app) # Initial wrapper
 
 logging.basicConfig(filename='%d_collectUsers.log'%dataset,level=logging.INFO, format='%(asctime)s.%(msecs)03d : %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
 
-##############################################################################################################
-# Main
-##############################################################################################################
-
-# # load list of valid users
-# df_included_users = pd.DataFrame.from_csv("df_included_users.csv")
-
+# ##############################################################################################################
+# # Main
+# ##############################################################################################################
+#
+# # # load list of valid users
+# df_included_users = pd.DataFrame.from_csv(folder+"df_included_users.csv")
+#
 # ######################################################################################################################
 # # Estimate request needed for limitation planing
 # ######################################################################################################################
@@ -188,9 +188,10 @@ logging.basicConfig(filename='%d_collectUsers.log'%dataset,level=logging.INFO, f
 # lim_per_req = 100
 # i = 0
 # while i < len(topUids):
-#     collectingUids = topUids[i:i+lim_per_req-1]
+#     collectingUids = topUids[i:i+lim_per_req]
 #     userProfiles += twt._api.lookup_users(collectingUids)
 #     i += lim_per_req
+#     print("%d : %d"%(len(collectingUids),len(userProfiles)))
 #     print(i)
 #
 # # check how many requests required to get all users networks
@@ -215,15 +216,16 @@ logging.basicConfig(filename='%d_collectUsers.log'%dataset,level=logging.INFO, f
 #     if np.sum(list(uids.values())) < chunk_size:
 #         uids[row.uid] = row.call
 #     else:
+#         uids[row.uid] = row.call
 #         user_set.append(uids)
 #         uids={}
 # # update last user list
 # user_set.append(uids)
 #
 # save_object(user_set, folder+'user_set.pkl')
-#
-# # # check user
-# # twt._api.get_user(24067286).screen_name
+
+# # check user
+# twt._api.get_user(24067286).screen_name
 
 ######################################################################################################################
 # Collect users
@@ -352,3 +354,61 @@ for uid in processing_uids:
         print(msg11); logging.info(msg11)
 
 # userNetworks = load_object('4_user_network.pkl')
+
+# ## test
+# a=[]
+# l = 0
+# uset = load_object(folder+"old_user_set.pkl")
+# ulist = []
+# for i in range(5):
+#     l += len(uset[i])
+#     ulist+=uset[i].keys()
+# #user already processed
+# ulist
+#
+# #user not yet processed
+# not_proccessed_ulist = []
+# for uid in list(df_user_callneed.uid.values):
+#     if uid not in ulist:
+#         not_proccessed_ulist.append(uid)
+# not_proccessed_ulist
+#
+# len(not_proccessed_ulist)
+# len(ulist)
+#
+# not_proccessed_ulist
+#
+# uprof =  twt._api.lookup_users(not_proccessed_ulist)
+# df = pd.DataFrame(columns= ['uid', 'call'])
+# callneeded = 0
+# for u in uprof:
+#     print("followers:%s | friends:%s"%(u.followers_count,u.friends_count))
+#     callneeded += u.followers_count/5000
+#     df = df.append(pd.DataFrame([[u.id, callneeded]],columns=['uid','call']))
+#
+# # Split data
+# num_set = 5
+# total_call = np.sum(list(df.call.values))
+# chunk_size = math.ceil(total_call/num_set)
+# user_set = []
+# uids={}
+# for idx, row in df.iterrows():
+#     if np.sum(list(uids.values())) < chunk_size:
+#         uids[row.uid] = row.call
+#     else:
+#         uids[row.uid] = row.call
+#         user_set.append(uids)
+#         uids={}
+# # update last user list
+# user_set.append(uids)
+# aa = []
+# for u in user_set:
+#     aa+= u.keys()
+# aa
+# len(aa)
+# user_set[3]
+#
+# save_object(user_set, folder+'leftover_user_set.pkl')
+
+a = twt._api.friends_ids(900521261842825216)
+len(a)

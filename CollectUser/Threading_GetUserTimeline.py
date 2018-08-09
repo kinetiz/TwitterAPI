@@ -148,7 +148,7 @@ def isTooActive(active_hour_list, notLongerThanHr=20):
 
             if count > max_count: max_count = count
 
-    print('activehours:%d'%max_count)
+    # print('activehours:%d'%max_count)
     if max_count > notLongerThanHr:
         return True
     else:
@@ -160,168 +160,181 @@ def isTooOften(active_dates, tweet_count, limitPerDay=80):
 
     # avg tweets per day
     twt_per_day = tweet_count / num_day
-    print('twtperday:%s'%twt_per_day)
+    # print('twtperday:%s'%twt_per_day)
     if twt_per_day > limitPerDay:
         return True
     else:
         return False
 
+thread=5
+# def get_user_timeline(thread):
+##############################################################
+# Configuration
+##############################################################
 
-def get_user_timeline(thread):
-    ##############################################################
-    # Configuration
-    ##############################################################
+authen_app = thread # Default: app1 -  app1-5
+twt = TweepyWrapper(authen_app) # Initial wrapper
 
-    authen_app = thread # Default: app1 -  app1-5
-    twt = TweepyWrapper(authen_app) # Initial wrapper
+# setup logfile according to thread
+logger = setup_logger('t%d'%thread, 'thread_usertimeline//%d//%d_GetUserTimeline.log'%(thread,thread))
+logger.info('from thread: %d'%thread)
 
-    # setup logfile according to thread
-    logger = setup_logger('t%d'%thread, 'thread_usertimeline//%d//%d_GetUserTimeline.log'%(thread,thread))
-    logger.info('from thread: %d'%thread)
+def printlog(m):
+    print(m)
+    logger.info(m)
 
-    def printlog(m):
-        print(m)
-        logger.info(m)
+### error config: pick value from error #########
 
-    ### error config: pick value from error #########
+bot_list = load_object("thread_usertimeline//%d//%d_auu_bot_list.pkl"%(thread,thread))
+dict_usertwt = dict() #load_object("usertimeline//dict_usertwt%d.pkl"%dict_set)
+ulist = load_object('thread_usertimeline//overlap_8_link_user_set%d.pkl'%thread)
 
-    bot_list = load_object("thread_usertimeline//%d//%d_auu_bot_list.pkl"%(thread,thread))
-    dict_usertwt = dict() #load_object("usertimeline//dict_usertwt%d.pkl"%dict_set)
-    ulist = load_object('thread_usertimeline//overlap_8_link_user_set%d.pkl'%thread)
+# if thread == 1:
+#     from_uid = 940513566645293056  # change it
+#     dict_set = 6
+# elif thread == 2:
+#     from_uid = 890941197451235329  # change it
+#     dict_set = 14
+# if thread == 3:
+#     from_uid = 1129184342  # change it
+#     dict_set = 52
+if thread == 4:
+    from_uid = 25624275  # change it
+    dict_set = 40
+elif thread == 5:
+    from_uid = 704317326146084864  # change it
+    dict_set = 43
 
-    # if thread == 1:
-    #     from_uid = 940513566645293056  # change it
-    #     dict_set = 6
-    # elif thread == 2:
-    #     from_uid = 890941197451235329  # change it
-    #     dict_set = 14
-    if thread == 3:
-        from_uid = 92259212  # change it
-        dict_set = 40
-    elif thread == 4:
-        from_uid = 822244212  # change it
-        dict_set = 27
-    elif thread == 5:
-        from_uid = 57268394  # change it
-        dict_set = 10
+ulist = ulist[ulist.index(from_uid)+1:]
+###############################################################################################################
 
-    ulist = ulist[ulist.index(from_uid)+1:]
-    ###############################################################################################################
+save_chunk = 50
+count_user = 0
+file_size = 200  # users per file
+checkbot_limit = 2  # only first N time
+date_format = '%a %b %d %H:%M:%S %z %Y'
+for uid in ulist:
+    printlog("T:%d|Collecting twt of uid: %d .." % (thread,uid))
 
-    count = 200
-    date_format = '%a %b %d %H:%M:%S %z %Y'
-    for uid in ulist:
-        printlog("Collecting twt of uid: %d .."%uid)
+    is_bot = False
+    all_tweets = []
+    retweet_count = 0
+    checkbot_count = 0
 
-        is_bot = False
-        all_tweets = []
-        retweet_count = 0
-        cur_pages = tweepy.Cursor(twt._api.user_timeline, user_id=uid, count=count, tweet_mode="extended").pages()
+    cur_pages = tweepy.Cursor(twt._api.user_timeline, user_id=uid, count=200, tweet_mode="extended").pages()
+    try:
+        for tweets in cur_pages:
+            active_hours = []
+            active_days = []
+            count_original_twt = 0  # num. tweet excluded RT
 
-        try:
-            for tweets in cur_pages:
+            for t in tweets:
+                ### Checking bot (only first round)
+                if checkbot_count < checkbot_limit:
+                    # count active time to check bot
+                    active_hours.append(datetime.strptime(t._json['created_at'], date_format).hour)
+                    active_days.append(datetime.strptime(t._json['created_at'], date_format).date())
+
+                # collect tweet info
+                twt_info = dict()
+                twt_info['id'] = t.id
+                twt_info['created_at'] = t.created_at
+                twt_info['lang'] = t.lang
+                twt_info['retweet_count'] = t.retweet_count
+
+                if 'retweeted_status' in t._json:
+                    twt_info['entities'] = t.retweeted_status.entities
+                    # twt_info['full_text'] = t.retweeted_status.full_text
+                    twt_info['retweet_from_tid'] = t.retweeted_status.id  # exist only retweet status
+                    twt_info['retweet_from_uid'] = t.retweeted_status.user.id  # exist only retweet status
+                else:  # original as retweet field not exist
+                    twt_info['entities'] = t.entities
+                    # twt_info['full_text'] = t.full_text
+                    retweet_count += t.retweet_count  # count how many time this users'post was retweeted
+                    count_original_twt += 1  # count number of original tweets for bot checking
+
+                # exist only replied status
+                if t.in_reply_to_status_id is not None:
+                    twt_info['reply_tid'] = t.in_reply_to_status_id
+                    twt_info['reply_uid'] = t.in_reply_to_user_id
+
+                # collect tweet
+                all_tweets.append(twt_info)
+
+            ### Checking bot (only first 2 round)
+            if checkbot_count < checkbot_limit:
                 ######################################################
                 # Bot is..
                 # 1. continuously active > 20 hours a day
                 # 2. more than 80 post a day
                 ######################################################
-
-                active_hours = []
-                active_days =[]
-                count_original_twt = 0 #num. tweet excluded RT
-
-                for t in tweets:
-                    # count active time to check bot
-                    active_hours.append(datetime.strptime(t._json['created_at'], date_format).hour)
-                    active_days.append(datetime.strptime(t._json['created_at'], date_format).date())
-
-                    # collect tweet info
-                    twt_info = dict()
-                    twt_info['id'] = t.id
-                    twt_info['created_at'] = t.created_at
-                    twt_info['lang'] = t.lang
-                    twt_info['retweet_count'] = t.retweet_count
-
-                    if 'retweeted_status' in t._json:
-                        twt_info['entities'] = t.retweeted_status.entities
-                        # twt_info['full_text'] = t.retweeted_status.full_text
-                        twt_info['retweet_from_tid'] = t.retweeted_status.id  # exist only retweet status
-                        twt_info['retweet_from_uid'] = t.retweeted_status.user.id  # exist only retweet status
-                    else: # original as retweet field not exist
-                        twt_info['entities'] = t.entities
-                        # twt_info['full_text'] = t.full_text
-                        retweet_count += t.retweet_count #count how many time this users'post was retweeted
-                        count_original_twt += 1 #count number of original tweets for bot checking
-
-                    # exist only replied status
-                    if t.in_reply_to_status_id is not None:
-                        twt_info['reply_tid'] = t.in_reply_to_status_id
-                        twt_info['reply_uid'] = t.in_reply_to_user_id
-
-                    # collect tweet
-                    all_tweets.append(twt_info)
-
-                ### Checking bot
                 # Is it too active?
                 if isTooActive(active_hours, notLongerThanHr=20):
                     is_bot = True
-                    printlog('uid: %d Too active!'%uid)
+                    printlog('uid: %d Too active!' % uid)
                     break
 
                 # Is it too often?
-                if isTooOften(active_days, tweet_count= count_original_twt, limitPerDay=80):
+                if isTooOften(active_days, tweet_count=count_original_twt, limitPerDay=80):
                     is_bot = True
-                    printlog('uid: %d Tweet too often!'%uid)
+                    printlog('uid: %d Tweet too often!' % uid)
                     break
 
-                # log for recovery
-                printlog("Collected tid: %d"%tweets[-1].id)
-                printlog('Cursor maxid: %d' % (cur_pages.max_id))
+                checkbot_count += 1  # count if checked
 
-            # if not bot, add user with tweets to the dict
-            if not is_bot:
-                dict_usertwt[uid] = {'tweets': all_tweets, 'retweet_count': retweet_count}
-                printlog("Added uid: %d with RT: %d | Twt: %d" %(uid, retweet_count,len(all_tweets)))
-            else:
-                bot_list.append(uid)
-                printlog("uid: %d is Bot" % uid)
+            ## log for recovery
+            # printlog("Collected tid: %d"%tweets[-1].id)
+            # printlog('Cursor maxid: %d' % (cur_pages.max_id))
 
-        except Exception as e:
-            ee=e
-            if e.response.reason == 'Authorization Required':
-                printlog("uid: %s is Not authorized." % uid)
-            else:
-                raise
-
-        # save objs
-        #every N users save dict as file set then clear mem
-        if len(dict_usertwt) < 200:
-            save_object(dict_usertwt, "thread_usertimeline//%d//%d_dict_usertwt%d.pkl" %(thread, thread, dict_set))
+        # if not bot, add user with tweets to the dict
+        if not is_bot:
+            dict_usertwt[uid] = {'tweets': all_tweets, 'retweet_count': retweet_count}
+            count_user += 1
+            print("T:%d|Ucount: %d" % (thread, count_user))
+            # printlog("Added uid: %d with RT: %d | Twt: %d" %(uid, retweet_count,len(all_tweets)))
         else:
-            save_object(dict_usertwt, "thread_usertimeline//%d//%d_dict_usertwt%d.pkl" %(thread, thread, dict_set))
-            dict_usertwt=dict()
+            bot_list.append(uid)
+            printlog("uid: %d is Bot" % uid)
+
+    except Exception as e:
+        ee = e
+        if e.response.reason == 'Authorization Required':
+            printlog("uid: %s is Not authorized." % uid)
+        else:
+            raise
+
+    # save objs
+    if count_user % save_chunk == 0 and count_user != 0:
+        save_object(dict_usertwt, "thread_usertimeline//%d//%d_dict_usertwt%d.pkl" % (thread, thread, dict_set))
+        save_object(bot_list, "thread_usertimeline//%d//%d_auu_bot_list.pkl" % (thread, thread))
+        printlog("save objs set%d|count user:%d|uid:%d" % (dict_set, count_user, uid))
+
+        # every N users, clear mem and move to new file
+        if count_user >= file_size:
+            count_user = 0  # reset count user
+            dict_usertwt = dict()  # rest - new dict
             dict_set += 1
 
-        save_object(bot_list, "thread_usertimeline//%d//%d_auu_bot_list.pkl"%(thread,thread))
-        printlog("save objs set%d .."%dict_set)
+# save when all users processed
+save_object(dict_usertwt, "thread_usertimeline//%d//%d_dict_usertwt%d.pkl" % (thread, thread, dict_set))
+save_object(bot_list, "thread_usertimeline//%d//%d_auu_bot_list.pkl" % (thread, thread))
+printlog("save objs set%d|count user:%d|uid:%d" % (dict_set, count_user, uid))
+printlog("Done collect user timeline thread: %d.." % thread)
 
-    printlog("Done collect user timeline thread: %d.."%thread)
-
-
-
-from multiprocessing.dummy import Pool as ThreadPool
-
-# make the Pool of workers
-pool = ThreadPool(3)
-
-# results = pool.starmap(function, zip(list_a, list_b))
-# threads = [1, 2, 3, 4, 5]
-threads = [3, 4, 5]
-pool.map(get_user_timeline, threads)
-
-# close the pool and wait for the work to finish
-pool.close()
-pool.join()
+#
+# from multiprocessing.dummy import Pool as ThreadPool
+#
+# # make the Pool of workers
+# pool = ThreadPool(1)
+#
+# # results = pool.starmap(function, zip(list_a, list_b))
+# # threads = [1, 2, 3, 4, 5]
+# threads = [5]
+# pool.map(get_user_timeline, threads)
+#
+# # close the pool and wait for the work to finish
+# pool.close()
+# pool.join()
 
 
 
@@ -360,3 +373,4 @@ pool.join()
 # # check howm many bot detected
 # bb = load_object("G:\\work\\TwitterAPI\\CollectUser\\thread_usertimeline\\5\\5_auu_bot_list.pkl")
 # len(bb)
+len(bot_list)

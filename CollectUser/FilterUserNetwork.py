@@ -358,3 +358,7 @@ save_object(overlap_n_link_user, folder+'overlap_8_link_user.pkl')
 # user_set[3]
 #
 # save_object(user_set, folder+'leftover_user_set.pkl')
+
+# aa = load_object("top1000_combined_fri-fol_users.pkl")
+# base_users = ['_'+str(i.uid) for i in aa]
+# pd.DataFrame({'uid':base_users}).to_csv('base_users.csv',index=False)
